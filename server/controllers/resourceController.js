@@ -15,17 +15,17 @@ const ResourceController = {
   },
 
   recommend(req, res) {
-    const id = Number(req.params.id);
-    const resource = ResourceDAO.findById(id);
+  const id = req.resourceId;
+  const resource = ResourceDAO.findById(id);
 
-    if (!resource) {
-      return res.status(404).json({ error: 'Healthcare resource not found' });
-    }
-
-    const updatedResource = ResourceDAO.recommend(id);
-
-    res.json(updatedResource);
+  if (!resource) {
+    return res.status(404).json({ error: 'Healthcare resource not found' });
   }
+
+  const updatedResource = ResourceDAO.recommend(id);
+
+  res.json(updatedResource);
+}
 };
 
 module.exports = ResourceController;
