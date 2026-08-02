@@ -1,0 +1,26 @@
+export type HealthcareResource = {
+  id: number;
+  name: string;
+  category: string;
+  country: string;
+  region: string;
+  lat: number;
+  lon: number;
+  description: string;
+  recommendations: number;
+};
+
+export type NewHealthcareResource = {
+  name: string;
+  category: string;
+  country: string;
+  region: string;
+  lat: number | string;
+  lon: number | string;
+  description: string;
+};
+
+export type ApiError = {
+  error: string;
+  details?: string[];
+};
