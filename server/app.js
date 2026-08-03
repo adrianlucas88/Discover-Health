@@ -9,8 +9,10 @@ app.use(express.json());
 
 app.use('/api/resources', resourceRoutes);
 
+app.use(express.static(path.join(__dirname, 'public')));
+
 app.get('/', (req, res) => {
-  res.send('DiscoverHealth API is running');
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.use((req, res) => {
