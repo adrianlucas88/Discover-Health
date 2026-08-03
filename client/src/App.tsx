@@ -1,6 +1,8 @@
 import { FormEvent, useState } from 'react';
 import { addResource, getResourcesByRegion, recommendResource } from './api';
+import ResourceMap from './components/ResourceMap';
 import type { HealthcareResource, NewHealthcareResource } from './types';
+
 
 const emptyResource: NewHealthcareResource = {
   name: '',
@@ -81,7 +83,16 @@ function App() {
       setError(err instanceof Error ? err.message : 'Unable to add resource.');
     }
   };
+const handleMapClick = (lat: number, lon: number) => {
+  setNewResource((currentResource) => ({
+    ...currentResource,
+    lat: lat.toFixed(5),
+    lon: lon.toFixed(5)
+  }));
 
+  setMessage('Map location selected. Latitude and longitude were added to the form.');
+  setError('');
+};
   return (
     <main className="page">
       <section className="hero">
@@ -141,7 +152,10 @@ function App() {
           </div>
         )}
       </section>
-
+<section className="card">
+  <h2>Healthcare resources map</h2>
+  <ResourceMap resources={resources} onMapClick={handleMapClick} />
+</section>
       <section className="card">
         <h2>Add healthcare resource</h2>
 
