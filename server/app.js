@@ -1,13 +1,28 @@
 const express = require('express');
 const path = require('path');
+const session = require('express-session');
 const resourceRoutes = require('./routes/resourceRoutes');
+const authRoutes = require('./routes/authRoutes');
 
 const app = express();
 const PORT = 3000;
 
 app.use(express.json());
 
+app.use(session({
+  secret: 'discoverhealth-session-secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: false,
+    maxAge: 24 * 60 * 60 * 1000
+  }
+}));
+
 app.use('/api/resources', resourceRoutes);
+app.use('/api/auth', authRoutes);
 
 app.use(express.static(path.join(__dirname, 'public')));
 
