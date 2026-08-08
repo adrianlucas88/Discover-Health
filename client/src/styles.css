@@ -151,3 +151,17 @@ textarea {
 .leaflet-popup-content p {
   margin: 0.3rem 0;
 }
+.auth-card {
+  border-left: 5px solid #0f766e;
+}
+
+.auth-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.auth-actions {
+  display: flex;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}

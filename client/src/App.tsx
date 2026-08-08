@@ -1,7 +1,13 @@
-import { FormEvent, useState } from 'react';
-import { addResource, getResourcesByRegion, recommendResource } from './api';
+import { FormEvent, useEffect, useState } from 'react';
+import { addResource,
+  getCurrentUser,
+  getResourcesByRegion,
+  login,
+  logout,
+  recommendResource,
+  signup } from './api';
 import ResourceMap from './components/ResourceMap';
-import type { HealthcareResource, NewHealthcareResource } from './types';
+import type { HealthcareResource, NewHealthcareResource, User } from './types';
 
 
 const emptyResource: NewHealthcareResource = {
@@ -21,7 +27,9 @@ function App() {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-
+const [currentUser, setCurrentUser] = useState<User | null>(null);
+const [authUsername, setAuthUsername] = useState('');
+const [authPassword, setAuthPassword] = useState('');
   const searchResources = async (event: FormEvent) => {
     event.preventDefault();
     setMessage('');
@@ -42,6 +50,18 @@ function App() {
     }
   };
 
+  useEffect(() => {
+  async function checkSession() {
+    try {
+      const data = await getCurrentUser();
+      setCurrentUser(data.user);
+    } catch {
+      setCurrentUser(null);
+    }
+  }
+
+  checkSession();
+}, []);
   const handleRecommend = async (id: number) => {
     setMessage('');
     setError('');
@@ -93,6 +113,47 @@ const handleMapClick = (lat: number, lon: number) => {
   setMessage('Map location selected. Latitude and longitude were added to the form.');
   setError('');
 };
+const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
+  event.preventDefault();
+  setError('');
+  setMessage('');
+
+  try {
+    const data = await login(authUsername, authPassword);
+    setCurrentUser(data.user);
+    setMessage('Login successful.');
+    setAuthPassword('');
+  } catch (error) {
+    setError(error instanceof Error ? error.message : 'Login failed.');
+  }
+};
+
+const handleSignup = async () => {
+  setError('');
+  setMessage('');
+
+  try {
+    const data = await signup(authUsername, authPassword);
+    setCurrentUser(data.user);
+    setMessage('Signup successful.');
+    setAuthPassword('');
+  } catch (error) {
+    setError(error instanceof Error ? error.message : 'Signup failed.');
+  }
+};
+
+const handleLogout = async () => {
+  setError('');
+  setMessage('');
+
+  try {
+    await logout();
+    setCurrentUser(null);
+    setMessage('Logout successful.');
+  } catch (error) {
+    setError(error instanceof Error ? error.message : 'Logout failed.');
+  }
+};
   return (
     <main className="page">
       <section className="hero">
@@ -105,7 +166,49 @@ const handleMapClick = (lat: number, lon: number) => {
 
       {message && <div className="message success">{message}</div>}
       {error && <div className="message error">{error}</div>}
+<section className="card auth-card">
+  <h2>User account</h2>
 
+  {currentUser ? (
+    <div>
+      <p>
+        Logged in as <strong>{currentUser.username}</strong>
+      </p>
+      <button type="button" onClick={handleLogout}>
+        Logout
+      </button>
+    </div>
+  ) : (
+    <form className="auth-form" onSubmit={handleLogin}>
+      <label>
+        Username
+        <input
+          type="text"
+          value={authUsername}
+          onChange={(event) => setAuthUsername(event.target.value)}
+          required
+        />
+      </label>
+
+      <label>
+        Password
+        <input
+          type="password"
+          value={authPassword}
+          onChange={(event) => setAuthPassword(event.target.value)}
+          required
+        />
+      </label>
+
+      <div className="auth-actions">
+        <button type="submit">Login</button>
+        <button type="button" onClick={handleSignup}>
+          Signup
+        </button>
+      </div>
+    </form>
+  )}
+</section>
       <section className="card">
         <h2>Search healthcare resources</h2>
 

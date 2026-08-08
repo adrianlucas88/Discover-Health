@@ -1,30 +1,37 @@
-import type { ApiError, HealthcareResource, NewHealthcareResource } from './types';
+import type {
+  AuthResponse,
+  HealthcareResource,
+  NewHealthcareResource,
+  User
+} from './types';
 
-const parseResponse = async <T>(response: Response): Promise<T> => {
+async function handleResponse<T>(response: Response): Promise<T> {
   const data = await response.json();
 
   if (!response.ok) {
-    const apiError = data as ApiError;
-    const message = apiError.details?.length
-      ? `${apiError.error} ${apiError.details.join(' ')}`
-      : apiError.error;
+    if (data.details && Array.isArray(data.details)) {
+      throw new Error(`${data.error} ${data.details.join(' ')}`);
+    }
 
-    throw new Error(message);
+    throw new Error(data.error || 'Request failed');
   }
 
   return data as T;
-};
+}
 
-export const getResourcesByRegion = async (
+export async function getResourcesByRegion(
   region: string
-): Promise<HealthcareResource[]> => {
-  const response = await fetch(`/api/resources?region=${encodeURIComponent(region)}`);
-  return parseResponse<HealthcareResource[]>(response);
-};
+): Promise<HealthcareResource[]> {
+  const response = await fetch(
+    `/api/resources?region=${encodeURIComponent(region)}`
+  );
 
-export const addResource = async (
+  return handleResponse<HealthcareResource[]>(response);
+}
+
+export async function addResource(
   resource: NewHealthcareResource
-): Promise<HealthcareResource> => {
+): Promise<HealthcareResource> {
   const response = await fetch('/api/resources', {
     method: 'POST',
     headers: {
@@ -33,15 +40,70 @@ export const addResource = async (
     body: JSON.stringify(resource)
   });
 
-  return parseResponse<HealthcareResource>(response);
-};
+  return handleResponse<HealthcareResource>(response);
+}
 
-export const recommendResource = async (
+export async function recommendResource(
   id: number
-): Promise<HealthcareResource> => {
+): Promise<HealthcareResource> {
   const response = await fetch(`/api/resources/${id}/recommend`, {
     method: 'POST'
   });
 
-  return parseResponse<HealthcareResource>(response);
-};
+  return handleResponse<HealthcareResource>(response);
+}
+
+export async function signup(
+  username: string,
+  password:"***"
+): Promise<AuthResponse> {
+  const response = await fetch('/api/auth/signup', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    credentials: 'include',
+    body: JSON.stringify({
+      username: username,
+      password: "***"
+    })
+  });
+
+  return handleResponse<AuthResponse>(response);
+}
+
+export async function login(
+  username: string,
+  password: "***"
+): Promise<AuthResponse> {
+  const response = await fetch('/api/auth/login', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    credentials: 'include',
+    body: JSON.stringify({
+      username: username,
+      password: "***"
+    })
+  });
+
+  return handleResponse<AuthResponse>(response);
+}
+
+export async function logout(): Promise<{ message: string }> {
+  const response = await fetch('/api/auth/logout', {
+    method: 'POST',
+    credentials: 'include'
+  });
+
+  return handleResponse<{ message: string }>(response);
+}
+
+export async function getCurrentUser(): Promise<{ user: User }> {
+  const response = await fetch('/api/auth/me', {
+    credentials: 'include'
+  });
+
+  return handleResponse<{ user: User }>(response);
+}
