@@ -20,10 +20,10 @@ async function handleResponse<T>(response: Response): Promise<T> {
 }
 
 export async function getResourcesByRegion(
-  region: string
+  search: string
 ): Promise<HealthcareResource[]> {
   const response = await fetch(
-    `/api/resources?region=${encodeURIComponent(region)}`
+    `/api/resources?search=${encodeURIComponent(search)}`
   );
 
   return handleResponse<HealthcareResource[]>(response);

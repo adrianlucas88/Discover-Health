@@ -213,7 +213,7 @@ const handleLogout = async () => {
         <h2>Search healthcare resources</h2>
 
         <form onSubmit={searchResources} className="search-form">
-          <label htmlFor="region">Region</label>
+          <label htmlFor="region">Search by region or clinic name</label>
           <div className="search-row">
             <input
               id="region"
