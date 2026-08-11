@@ -1,17 +1,25 @@
 const db = require('../config/database');
 
 const ResourceDAO = {
-  findByRegion(region) {
-    if (!region) {
-      return db
-        .prepare('SELECT * FROM healthcare_resources ORDER BY name')
-        .all();
-    }
-
+findBySearch(searchTerm) {
+  if (!searchTerm) {
     return db
-      .prepare('SELECT * FROM healthcare_resources WHERE region = ? COLLATE NOCASE ORDER BY name')
-      .all(region);
-  },
+      .prepare('SELECT * FROM healthcare_resources ORDER BY name')
+      .all();
+  }
+
+  const searchValue = `%${searchTerm.trim()}%`;
+
+  return db
+    .prepare(`
+      SELECT *
+      FROM healthcare_resources
+      WHERE region LIKE ? COLLATE NOCASE
+         OR name LIKE ? COLLATE NOCASE
+      ORDER BY name
+    `)
+    .all(searchValue, searchValue);
+},
 
   findById(id) {
     return db

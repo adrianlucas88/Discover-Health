@@ -2,9 +2,8 @@ const ResourceDAO = require('../dao/resourceDAO');
 
 const ResourceController = {
   listByRegion(req, res) {
-    const region = req.query.region;
-    const resources = ResourceDAO.findByRegion(region);
-
+  const search = req.query.search || req.query.region || '';
+  const resources = ResourceDAO.findBySearch(search);
     res.json(resources);
   },
 

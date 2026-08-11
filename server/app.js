@@ -6,7 +6,7 @@ const authRoutes = require('./routes/authRoutes');
 
 const app = express();
 const PORT = 3000;
-
+const reviewRoutes = require('./routes/reviewRoutes');
 app.use(express.json());
 
 app.use(session({
@@ -23,7 +23,7 @@ app.use(session({
 
 app.use('/api/resources', resourceRoutes);
 app.use('/api/auth', authRoutes);
-
+app.use('/api', reviewRoutes);
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/', (req, res) => {
