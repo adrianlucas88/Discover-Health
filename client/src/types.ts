@@ -35,3 +35,11 @@ export type AuthResponse = {
   message?: string;
   user: User;
 };
+
+export type Review = {
+  id: number;
+  resource_id: number;
+  review: string;
+  user_id: number;
+  username: string;
+};

@@ -165,3 +165,50 @@ textarea {
   gap: 0.8rem;
   flex-wrap: wrap;
 }
+
+.review-section {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #dbe7e3;
+}
+
+.review-section h4 {
+  margin-bottom: 0.5rem;
+}
+
+.review-list {
+  display: grid;
+  gap: 0.6rem;
+  margin-top: 0.8rem;
+}
+
+.review-item {
+  background: #f5fbf8;
+  border-left: 4px solid #0f766e;
+  border-radius: 0.6rem;
+  padding: 0.7rem;
+}
+
+.review-item p {
+  margin: 0 0 0.3rem;
+}
+
+.review-item small {
+  color: #45635c;
+}
+
+.review-form {
+  display: grid;
+  gap: 0.6rem;
+  margin-top: 0.8rem;
+}
+
+.review-form textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.hint-text {
+  color: #5f6f6a;
+  font-size: 0.95rem;
+}

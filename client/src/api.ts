@@ -2,6 +2,7 @@ import type {
   AuthResponse,
   HealthcareResource,
   NewHealthcareResource,
+  Review,
   User
 } from './types';
 
@@ -106,4 +107,30 @@ export async function getCurrentUser(): Promise<{ user: User }> {
   });
 
   return handleResponse<{ user: User }>(response);
+}
+
+export async function getReviewsByResource(
+  resourceId: number
+): Promise<Review[]> {
+  const response = await fetch(`/api/resources/${resourceId}/reviews`);
+
+  return handleResponse<Review[]>(response);
+}
+
+export async function addReview(
+  resourceId: number,
+  review: string
+): Promise<Review> {
+  const response = await fetch(`/api/resources/${resourceId}/reviews`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    credentials: 'include',
+    body: JSON.stringify({
+      review: review
+    })
+  });
+
+  return handleResponse<Review>(response);
 }

@@ -1,13 +1,22 @@
 import { FormEvent, useEffect, useState } from 'react';
-import { addResource,
+import {
+  addResource,
+  addReview,
   getCurrentUser,
   getResourcesByRegion,
+  getReviewsByResource,
   login,
   logout,
   recommendResource,
-  signup } from './api';
+  signup
+} from './api';
 import ResourceMap from './components/ResourceMap';
-import type { HealthcareResource, NewHealthcareResource, User } from './types';
+import type {
+  HealthcareResource,
+  NewHealthcareResource,
+  Review,
+  User
+} from './types';
 
 
 const emptyResource: NewHealthcareResource = {
@@ -27,9 +36,11 @@ function App() {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-const [currentUser, setCurrentUser] = useState<User | null>(null);
-const [authUsername, setAuthUsername] = useState('');
-const [authPassword, setAuthPassword] = useState('');
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [authUsername, setAuthUsername] = useState('');
+  const [authPassword, setAuthPassword] = useState('');
+  const [reviewsByResource, setReviewsByResource] = useState<Record<number, Review[]>>({});
+  const [reviewInputs, setReviewInputs] = useState<Record<number, string>>({});
   const searchResources = async (event: FormEvent) => {
     event.preventDefault();
     setMessage('');
@@ -154,6 +165,58 @@ const handleLogout = async () => {
     setError(error instanceof Error ? error.message : 'Logout failed.');
   }
 };
+
+const loadReviews = async (resourceId: number) => {
+  setError('');
+  setMessage('');
+
+  try {
+    const reviews = await getReviewsByResource(resourceId);
+
+    setReviewsByResource((currentReviews) => ({
+      ...currentReviews,
+      [resourceId]: reviews
+    }));
+  } catch (error) {
+    setError(error instanceof Error ? error.message : 'Could not load reviews.');
+  }
+};
+
+const handleReviewInputChange = (resourceId: number, value: string) => {
+  setReviewInputs((currentInputs) => ({
+    ...currentInputs,
+    [resourceId]: value
+  }));
+};
+
+const handleAddReview = async (resourceId: number) => {
+  setError('');
+  setMessage('');
+
+  const reviewText = reviewInputs[resourceId] || '';
+
+  try {
+    const newReview = await addReview(resourceId, reviewText);
+
+    setReviewsByResource((currentReviews) => ({
+      ...currentReviews,
+      [resourceId]: [
+        newReview,
+        ...(currentReviews[resourceId] || [])
+      ]
+    }));
+
+    setReviewInputs((currentInputs) => ({
+      ...currentInputs,
+      [resourceId]: ''
+    }));
+
+    setMessage('Review added successfully.');
+  } catch (error) {
+    setError(error instanceof Error ? error.message : 'Could not add review.');
+  }
+};
+
   return (
     <main className="page">
       <section className="hero">
@@ -250,6 +313,46 @@ const handleLogout = async () => {
                 </p><button type="button" onClick={() => handleRecommend(resource.id)}>
                   Recommend
                 </button>
+                <div className="review-section">
+  <h4>Reviews</h4>
+
+  <button
+    type="button"
+    onClick={() => loadReviews(resource.id)}
+  >
+    Show reviews
+  </button>
+
+  <div className="review-list">
+    {(reviewsByResource[resource.id] || []).map((review) => (
+      <div key={review.id} className="review-item">
+        <p>{review.review}</p>
+        <small>By {review.username}</small>
+      </div>
+    ))}
+  </div>
+
+  {currentUser ? (
+    <div className="review-form">
+      <textarea
+        value={reviewInputs[resource.id] || ''}
+        onChange={(event) =>
+          handleReviewInputChange(resource.id, event.target.value)
+        }
+        placeholder="Write a short review"
+      />
+
+      <button
+        type="button"
+        onClick={() => handleAddReview(resource.id)}
+      >
+        Add review
+      </button>
+    </div>
+  ) : (
+    <p className="hint-text">Log in to add a review.</p>
+  )}
+</div>
               </article>
             ))}
           </div>
